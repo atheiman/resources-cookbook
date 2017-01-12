@@ -1,6 +1,6 @@
 # `resources` Cookbook
 
-Apply resources to nodes via attributes!
+[![Chef cookbook](https://img.shields.io/cookbook/v/resources.svg)](https://supermarket.chef.io/cookbooks/resources) [![Travis](https://img.shields.io/travis/atheiman/resources-cookbook.svg?maxAge=3600)](https://travis-ci.org/atheiman/resources-cookbook)
 
 This cookbook applies resources to nodes dynamically using attributes. Here is a complete example role using this cookbook to download a file, run commands against the file, then delete the file:
 
