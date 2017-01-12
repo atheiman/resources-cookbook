@@ -65,7 +65,7 @@ namespace :kitchen do
 
   # dynamically create tasks for each kitchen action
   %i(create converge verify destroy test).each do |command|
-    task command, :regexp, :concurrency, :local_config do |t, args|
+    task command, :regexp, :concurrency, :local_config do |_t, args|
       args.with_defaults(
         regexp: 'all',
         concurrency: 1,
