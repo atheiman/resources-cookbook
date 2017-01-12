@@ -24,9 +24,11 @@ namespace :integration do
   # @param concurrency [#to_i] number of instances to run the action against concurrently.
   # @param loader_config [Hash] loader configuration options.
   # @return void
-  def run_kitchen(action, regexp, concurrency, loader_config = {})
+  def run_kitchen(action, regexp, concurrency, loader_config: {})
     require 'kitchen'
+
     Kitchen.logger = Kitchen.default_file_logger
+
     config = { loader: Kitchen::Loader::YAML.new(loader_config) }
 
     call_threaded(
@@ -54,19 +56,24 @@ namespace :integration do
   end
 
   desc 'Run integration tests with kitchen-vagrant'
-  task :vagrant, [:action, :regexp, :concurrency] do |_t, args|
+  task :vagrant, :action, :regexp, :concurrency do |_t, args|
     args.with_defaults(action: 'test', regexp: 'all', concurrency: 1)
     run_kitchen(args.action, args.regexp, args.concurrency.to_i)
   end
 
   desc 'Run integration tests with kitchen-docker'
-  task :docker, [:action, :regexp, :concurrency] do |_t, args|
-    args.with_defaults(action: 'test', regexp: 'all', concurrency: 1)
+  task :docker, :action, :regexp, :concurrency, :local_config do |_t, args|
+    args.with_defaults(
+      action: 'test',
+      regexp: 'all',
+      concurrency: 1,
+      local_config: '.kitchen.docker.yml'
+    )
     run_kitchen(
       args.action,
       args.regexp,
       args.concurrency.to_i,
-      local_config: '.kitchen.docker.yml'
+      loader_config: { local_config: args.local_config }
     )
   end
 end

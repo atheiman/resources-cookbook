@@ -19,7 +19,7 @@ suites:
       resources:
         remote_file:
           /tmp/file.txt:
-            source: http://host/file.txt
+            source: https://raw.githubusercontent.com/atheiman/resources-cookbook/master/README.md
             mode: '755'
             resource_priority: 90
         execute:
