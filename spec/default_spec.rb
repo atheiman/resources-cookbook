@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'resources::default' do
   cached(:chef_run) do
-    ChefSpec::ServerRunner.new do |node, server|
+    ChefSpec::ServerRunner.new do |node, _server|
       node.set['resources']['remote_file'] = {
         '/tmp/file.txt' => {
           'source' => 'http://host/file.txt',

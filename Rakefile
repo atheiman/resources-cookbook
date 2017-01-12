@@ -3,8 +3,11 @@ require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec)
 
-desc 'Run Test Kitchen integration tests'
-namespace :integration do
+desc 'Run test-kitchen commands'
+namespace :kitchen do
+  require 'kitchen'
+  Kitchen.logger = Kitchen.default_file_logger
+
   # Gets a collection of instances.
   #
   # @param regexp [String] regular expression to match against instance names.
@@ -17,23 +20,24 @@ namespace :integration do
     instances
   end
 
-  # Runs a test kitchen action against some instances.
+  # Runs a test kitchen command against some instances.
   #
-  # @param action [String] kitchen action to run (defaults to `'test'`).
+  # @param command [String] kitchen command to run (defaults to `'test'`).
   # @param regexp [String] regular expression to match against instance names.
-  # @param concurrency [#to_i] number of instances to run the action against concurrently.
+  # @param concurrency [#to_i] number of instances to run the command against concurrently.
   # @param loader_config [Hash] loader configuration options.
   # @return void
-  def run_kitchen(action, regexp, concurrency, loader_config: {})
-    require 'kitchen'
-
-    Kitchen.logger = Kitchen.default_file_logger
+  def run_kitchen(command, regexp, concurrency, loader_config: {})
+    puts "command: #{command}"
+    puts "regexp: #{regexp}"
+    puts "concurrency: #{concurrency}"
+    puts "loader_config: #{loader_config}"
 
     config = { loader: Kitchen::Loader::YAML.new(loader_config) }
 
     call_threaded(
       kitchen_instances(regexp, config),
-      action,
+      command,
       concurrency
     )
   end
@@ -55,25 +59,25 @@ namespace :integration do
     threads.map(&:join)
   end
 
-  desc 'Run integration tests with kitchen-vagrant'
-  task :vagrant, :action, :regexp, :concurrency do |_t, args|
-    args.with_defaults(action: 'test', regexp: 'all', concurrency: 1)
-    run_kitchen(args.action, args.regexp, args.concurrency.to_i)
+  def local_config_to_loader_config(local_config)
+    local_config.empty? ? {} : { local_config: local_config }
   end
 
-  desc 'Run integration tests with kitchen-docker'
-  task :docker, :action, :regexp, :concurrency, :local_config do |_t, args|
-    args.with_defaults(
-      action: 'test',
-      regexp: 'all',
-      concurrency: 1,
-      local_config: '.kitchen.docker.yml'
-    )
-    run_kitchen(
-      args.action,
-      args.regexp,
-      args.concurrency.to_i,
-      loader_config: { local_config: args.local_config }
-    )
+  # dynamically create tasks for each kitchen action
+  %i(create converge verify destroy test).each do |command|
+    task command, :regexp, :concurrency, :local_config do |t, args|
+      args.with_defaults(
+        regexp: 'all',
+        concurrency: 1,
+        local_config: ''
+      )
+      loader_config = local_config_to_loader_config(args.local_config)
+      run_kitchen(
+        command,
+        args.regexp,
+        args.concurrency.to_i,
+        loader_config: loader_config
+      )
+    end
   end
 end
