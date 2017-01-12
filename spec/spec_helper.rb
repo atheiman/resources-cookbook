@@ -6,6 +6,6 @@ Dir[File.join(current_dir, 'support/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
   config.platform = 'centos'
-  config.version = '7.2'
+  config.version = '7.2.1511'
   config.log_level = :fatal
 end

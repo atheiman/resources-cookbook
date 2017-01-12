@@ -1,1 +1,1 @@
-default['resources']['resource_defaults']['resource_priority'] = 100
+default['resources']['defaults']['resource_priority'] = 100

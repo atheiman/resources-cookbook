@@ -1,22 +1,35 @@
 require 'spec_helper'
 
 describe 'resources::default' do
-  context 'When all attributes are default, on an unspecified platform' do
-    let(resources) do
-      {
-        'cat /tmp/file_a' => {'resource_type' => 'execute'},
-        '/tmp/file_a' => {'resource_type' => }
+  cached(:chef_run) do
+    ChefSpec::ServerRunner.new do |node, server|
+      node.set['resources']['remote_file'] = {
+        '/tmp/file.txt' => {
+          'source' => 'http://host/file.txt',
+          'mode' => '755',
+          'resource_priority' => 90
+        }
       }
-    end
+      node.set['resources']['execute'] = [
+        'ls -alh /tmp/file.txt',
+        'cat /tmp/file.txt'
+      ]
+      node.set['resources']['file'] = {
+        '/tmp/file.txt' => {
+          'action' => 'delete',
+          'resource_priority' => 110
+        }
+      }
+    end.converge(described_recipe)
+  end
 
-    cached(:chef_run) do
-      ChefSpec::ServerRunner.new do |node, server|
-        node.set['resources'] = resources
-      end.converge(described_recipe)
-    end
-
-    it 'converges successfully' do
-      expect { chef_run }.to_not raise_error
-    end
+  it 'creates and applies the correct resources' do
+    expect(chef_run).to create_remote_file('/tmp/file.txt').with(
+      source: 'http://host/file.txt',
+      mode: '755'
+    )
+    expect(chef_run).to run_execute('ls -alh /tmp/file.txt')
+    expect(chef_run).to run_execute('cat /tmp/file.txt')
+    expect(chef_run).to delete_file('/tmp/file.txt').with
   end
 end
