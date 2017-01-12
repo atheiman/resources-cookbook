@@ -30,6 +30,6 @@ describe 'resources::default' do
     )
     expect(chef_run).to run_execute('ls -alh /tmp/file.txt')
     expect(chef_run).to run_execute('cat /tmp/file.txt')
-    expect(chef_run).to delete_file('/tmp/file.txt').with
+    expect(chef_run).to delete_file('/tmp/file.txt')
   end
 end
