@@ -19,8 +19,8 @@ suites:
       resources:
         remote_file:
           /tmp/file.txt:
-            source: http://host/file.txt'
-            mode: 755'
+            source: http://host/file.txt
+            mode: '755'
             resource_priority: 90
         execute:
         - ls -alh /tmp/file.txt
