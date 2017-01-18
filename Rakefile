@@ -49,7 +49,6 @@ namespace :kitchen do
   # @param concurrency [Integer] number of objects to call the method on concurrently.
   # @return void
   def call_threaded(objects, method_name, concurrency)
-    puts "method_name: #{method_name}, concurrency: #{concurrency}"
     threads = []
     raise 'concurrency must be > 0' if concurrency < 1
     objects.each do |obj|
